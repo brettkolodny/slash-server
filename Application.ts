@@ -122,7 +122,6 @@ export class Application {
     this.commands.forEach((command) => {
       if (!command.serverId) {
         console.error(`No guild specified for ${command.name}`);
-        Deno.exit(1);
       }
 
       const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${command.serverId}/commands`;
@@ -141,14 +140,12 @@ export class Application {
             console.error(
               `Could not initialize command ${command.name}: ${res.statusText}`
             );
-            Deno.exit(1);
           }
         })
         .catch((error: Error) => {
           console.error(
             `Could not initialize command ${command.name}: ${error.message}`
           );
-          Deno.exit(1);
         });
     });
   }
