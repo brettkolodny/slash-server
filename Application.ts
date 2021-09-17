@@ -127,41 +127,37 @@ export class Application {
   }
 
   private initCommands(): void {
-    const map: Map<string, Command[]> = new Map();
+    let delay = 1;
 
     this.commands.forEach((command) => {
       if (!command.serverId) {
         console.error(`No guild specified for ${command.name}`);
       }
 
-      if (map.has(command.serverId!)) {
-        const guildCommands = map.get(command.serverId!);
-        guildCommands?.push(command);
-        map.set(command.serverId!, guildCommands!);
-      }
-    });
+      setTimeout(() => {
+        const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${command.serverId}/commands`;
+        const commandJson = JSON.stringify(command);
+        // console.log(commandJson);
 
-    map.forEach((val, key) => {
-      const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${key}/commands`;
-      const commandJson = JSON.stringify(val);
-      console.log(commandJson);
-
-      fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bot ${this.token}`,
-          "Content-Type": "application/json",
-        },
-        body: commandJson,
-      })
-        .then((res) => {
-          if (!res.ok) {
-            console.error(`Could not initialize command: ${res.statusText}`);
-          }
+        fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${this.token}`,
+            "Content-Type": "application/json",
+          },
+          body: commandJson,
         })
-        .catch((error: Error) => {
-          console.error(`Could not initialize command: ${error.message}`);
-        });
+          .then((res) => {
+            if (!res.ok) {
+              console.error(`Could not initialize command: ${res.statusText}`);
+            }
+          })
+          .catch((error: Error) => {
+            console.error(`Could not initialize command: ${error.message}`);
+          });
+      }, delay * 1000);
+
+      delay += 5;
     });
   }
 
