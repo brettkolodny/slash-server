@@ -93,7 +93,7 @@ export class Application {
                   tts: false,
                   embeds: [
                     {
-                      title: command.description,
+                      title: `**${command.description}**`,
                       type: "rich",
                       description: commandResponse,
                       footer: {
@@ -127,13 +127,24 @@ export class Application {
   }
 
   private initCommands(): void {
+    const map: Map<string, Command[]> = new Map();
+
     this.commands.forEach((command) => {
       if (!command.serverId) {
         console.error(`No guild specified for ${command.name}`);
       }
 
-      const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${command.serverId}/commands`;
-      const commandJson = JSON.stringify(command);
+      if (map.has(command.serverId!)) {
+        const guildCommands = map.get(command.serverId!);
+        guildCommands?.push(command);
+        map.set(command.serverId!, guildCommands!);
+      }
+    });
+
+    map.forEach((val, key) => {
+      const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${key}/commands`;
+      const commandJson = JSON.stringify(val);
+      console.log(commandJson);
 
       fetch(url, {
         method: "POST",
@@ -143,18 +154,13 @@ export class Application {
         },
         body: commandJson,
       })
-        // @ts-ignore
         .then((res) => {
           if (!res.ok) {
-            console.error(
-              `Could not initialize command ${command.name}: ${res.statusText}`
-            );
+            console.error(`Could not initialize command: ${res.statusText}`);
           }
         })
         .catch((error: Error) => {
-          console.error(
-            `Could not initialize command ${command.name}: ${error.message}`
-          );
+          console.error(`Could not initialize command: ${error.message}`);
         });
     });
   }
