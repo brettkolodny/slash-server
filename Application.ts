@@ -91,8 +91,17 @@ export class Application {
                 type: 4,
                 data: {
                   tts: false,
-                  content: commandResponse,
-                  embeds: [],
+                  embeds: [
+                    {
+                      title: command.description,
+                      type: "rich",
+                      description: commandResponse,
+                      footer: {
+                        text: command.name,
+                      },
+                      color: 0xe6007a,
+                    },
+                  ],
                   allowed_mentions: { parse: [] },
                 },
               }),
@@ -118,7 +127,6 @@ export class Application {
   }
 
   private initCommands(): void {
-
     this.commands.forEach((command) => {
       if (!command.serverId) {
         console.error(`No guild specified for ${command.name}`);
@@ -135,6 +143,7 @@ export class Application {
         },
         body: commandJson,
       })
+        // @ts-ignore
         .then((res) => {
           if (!res.ok) {
             console.error(
