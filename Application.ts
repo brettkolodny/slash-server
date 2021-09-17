@@ -99,7 +99,7 @@ export class Application {
                       footer: {
                         text: command.name,
                       },
-                      color: 0xe6007a,
+                      color: 0xff4c3b,
                     },
                   ],
                   allowed_mentions: { parse: [] },
