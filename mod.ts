@@ -1,2 +1,2 @@
 export { Application } from "./Application.ts";
-export { Command } from "./Command.ts";
+export { Command, CommandGroup } from "./Command.ts";

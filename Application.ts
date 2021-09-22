@@ -2,7 +2,7 @@
 // <reference path="https://raw.githubusercontent.com/denoland/deployctl/main/types/deploy.ns.d.ts" />
 // <reference path="https://raw.githubusercontent.com/denoland/deployctl/main/types/deploy.window.d.ts" />
 
-import { Command } from "./Command.ts";
+import { Command, CommandGroup } from "./Command.ts";
 import { verifySignature } from "./utils.ts";
 
 interface ApplicationSettings {
@@ -68,9 +68,24 @@ export class Application {
         }
 
         if (data && data.name) {
-          const command = this.commands.find(
+          let command = this.commands.find(
             (command) => command.name === data.name
           );
+
+          if (!command) {
+            console.error("No Response");
+            return new Response(null, {
+              status: 404,
+              statusText: "Not Found",
+            });
+          }
+
+          if (data.options) {
+            const [{ name }] = data.options;
+            command = (command as CommandGroup).commands.find(
+              (val) => val.name === name
+            );
+          }
 
           if (!command || !command.response) {
             console.error("No Response");
@@ -137,7 +152,7 @@ export class Application {
       setTimeout(() => {
         const url = `https://discord.com/api/v8/applications/${this.appId}/guilds/${command.serverId}/commands`;
         const commandJson = JSON.stringify(command);
-        // console.log(commandJson);
+        console.log(commandJson);
 
         fetch(url, {
           method: "POST",
@@ -149,7 +164,7 @@ export class Application {
         })
           .then((res) => {
             if (!res.ok) {
-              console.error(`Could not initialize command: ${res.statusText}`);
+              console.error(`Could not initialize command: ${res.status}}`);
             }
           })
           .catch((error: Error) => {
