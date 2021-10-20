@@ -1,9 +1,6 @@
-// <reference path="https://raw.githubusercontent.com/denoland/deployctl/main/types/deploy.fetchevent.d.ts" />
-// <reference path="https://raw.githubusercontent.com/denoland/deployctl/main/types/deploy.ns.d.ts" />
-// <reference path="https://raw.githubusercontent.com/denoland/deployctl/main/types/deploy.window.d.ts" />
-
 import { Command, CommandGroup } from "./Command.ts";
 import { verifySignature } from "./utils.ts";
+import { listenAndServe } from "https://deno.land/std@0.112.0/http/server.ts";
 
 interface ApplicationSettings {
   id: string;
@@ -176,10 +173,10 @@ export class Application {
     });
   }
 
-  public start() {
+  public async start() {
     this.initCommands();
-    addEventListener("fetch", (event) => {
-      event.respondWith(this.handleRequest(event.request));
-    });
+    await listenAndServe(":8080", (req) => {
+      return this.handleRequest(req);
+    })
   }
 }
